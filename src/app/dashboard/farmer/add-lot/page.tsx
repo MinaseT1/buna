@@ -1,27 +1,43 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from "../Sidebar";
 import Image from 'next/image';
-import { MapPin, Upload, X, Camera, FileText, Check } from "lucide-react";
+import { MapPin, Upload, X, Camera, FileText, Check, Download } from "lucide-react";
+import { QRCodeSVG } from 'qrcode.react';
+import { useWallet } from "../../../../lib/wallet-context";
 
 export default function AddLotPage() {
   const router = useRouter();
   const fileInputRef = useRef(null);
   const documentInputRef = useRef(null);
   
+  // Get wallet from context
+  const { address, isConnected } = useWallet();
+  
   // Form state
   const [formData, setFormData] = useState({
     lotName: '',
     variety: '',
+    customVariety: '',
     weight: '',
     harvestDate: '',
     processingMethod: 'Natural',
     region: '',
     gpsCoordinates: '',
     altitude: '',
-    walletAddress: '8xft7UNd4oJPeTUreEfgL9QKWBKZ7Xh3FcFvTgQJKvyY' // Mock wallet address
+    walletAddress: ''
   });
+  
+  // Update wallet address when connected
+  useEffect(() => {
+    if (isConnected && address) {
+      setFormData(prev => ({
+        ...prev,
+        walletAddress: address
+      }));
+    }
+  }, [isConnected, address]);
   
   const [images, setImages] = useState([]);
   const [documents, setDocuments] = useState([]);
@@ -32,7 +48,7 @@ export default function AddLotPage() {
   
   // Coffee varieties
   const coffeeVarieties = [
-    'Heirloom', 'Typica', 'Bourbon', 'Gesha', 'SL28', 'SL34', 'Ruiru 11', 'Batian', 'Pacamara'
+    'Heirloom', 'Typica', 'Bourbon', 'Gesha', 'SL28', 'SL34', 'Ruiru 11', 'Batian', 'Pacamara', 'Other'
   ];
   
   // Ethiopian regions
@@ -129,6 +145,9 @@ export default function AddLotPage() {
     
     if (!formData.lotName.trim()) newErrors.lotName = 'Lot name is required';
     if (!formData.variety) newErrors.variety = 'Coffee variety is required';
+    if (formData.variety === 'Other' && !formData.customVariety.trim()) {
+      newErrors.customVariety = 'Custom variety name is required';
+    }
     if (!formData.weight || parseFloat(formData.weight) <= 0) {
       newErrors.weight = 'Weight must be greater than 0';
     }
@@ -165,6 +184,29 @@ export default function AddLotPage() {
       const randomNum = Math.floor(Math.random() * 1000);
       const generatedLotId = `LOT-ETH-${timestamp.toString().slice(-5)}${randomNum}`;
       
+      // Create a new lot object with the form data
+      const newLot = {
+        id: generatedLotId,
+        lotName: formData.lotName,
+        variety: formData.variety === 'Other' ? formData.customVariety : formData.variety,
+        weight: parseFloat(formData.weight),
+        status: 'Pending',
+        processor: '',
+        submittedDate: new Date().toISOString().split('T')[0],
+        region: formData.region,
+        altitude: formData.altitude,
+        harvestDate: formData.harvestDate,
+        processingMethod: formData.processingMethod,        gpsCoordinates: formData.gpsCoordinates,
+        images: images.length > 0 ? images.map(img => img.preview) : ['/coffee-bean-concept-illustration.png'], // Use actual image previews
+        timeline: [
+          { date: new Date().toISOString().split('T')[0], event: 'Lot registered by farmer', status: 'Pending' }
+        ]
+      };
+      
+      // Store the new lot in localStorage
+      const existingLots = JSON.parse(localStorage.getItem('coffeeLots') || '[]');
+      localStorage.setItem('coffeeLots', JSON.stringify([newLot, ...existingLots]));
+      
       setLotId(generatedLotId);
       setShowSuccess(true);
       
@@ -189,24 +231,24 @@ export default function AddLotPage() {
       <main className="flex-1 p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2 text-black">Add New Coffee Lot</h1>
-          <p className="text-gray-600">Enter detailed information about your harvested coffee batch</p>
+          <p className="text-black">Enter detailed information about your harvested coffee batch</p>
         </div>
         
         {!showSuccess ? (
           <form onSubmit={handleSubmit} className="max-w-4xl mx-auto bg-white rounded-lg shadow border p-6">
             {/* Basic Info Section */}
             <div className="mb-8">
-              <h2 className="text-lg font-semibold mb-4 pb-2 border-b">📄 Basic Information</h2>
+              <h2 className="text-lg font-semibold mb-4 pb-2 border-b text-black">📄 Basic Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Lot Name / Title <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-800 mb-1">Lot Name / Title <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="lotName"
                     value={formData.lotName}
                     onChange={handleChange}
                     placeholder="e.g., April Harvest Lot #1"
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.lotName ? 'border-red-500' : ''}`}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-gray-700 focus:ring-blue-500 ${errors.lotName ? 'border-red-500' : ''}`}
                   />
                   {errors.lotName && <p className="text-red-500 text-xs mt-1">{errors.lotName}</p>}
                 </div>
@@ -217,7 +259,7 @@ export default function AddLotPage() {
                     name="variety"
                     value={formData.variety}
                     onChange={handleChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.variety ? 'border-red-500' : ''}`}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-gray-700 focus:ring-blue-500 ${errors.variety ? 'border-red-500' : ''}`}
                   >
                     <option value="">Select variety</option>
                     {coffeeVarieties.map(variety => (
@@ -226,6 +268,21 @@ export default function AddLotPage() {
                   </select>
                   {errors.variety && <p className="text-red-500 text-xs mt-1">{errors.variety}</p>}
                 </div>
+                
+                {formData.variety === 'Other' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Custom Variety Name <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      name="customVariety"
+                      value={formData.customVariety}
+                      onChange={handleChange}
+                      placeholder="Enter custom coffee variety name"
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-gray-700 focus:ring-blue-500 ${errors.customVariety ? 'border-red-500' : ''}`}
+                    />
+                    {errors.customVariety && <p className="text-red-500 text-xs mt-1">{errors.customVariety}</p>}
+                  </div>
+                )}
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Weight (kg) <span className="text-red-500">*</span></label>
@@ -237,7 +294,7 @@ export default function AddLotPage() {
                     placeholder="e.g., 50.5"
                     step="0.1"
                     min="0.1"
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.weight ? 'border-red-500' : ''}`}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none text-gray-700 focus:ring-2 focus:ring-blue-500 ${errors.weight ? 'border-red-500' : ''}`}
                   />
                   {errors.weight && <p className="text-red-500 text-xs mt-1">{errors.weight}</p>}
                 </div>
@@ -249,7 +306,7 @@ export default function AddLotPage() {
                     name="harvestDate"
                     value={formData.harvestDate}
                     onChange={handleChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.harvestDate ? 'border-red-500' : ''}`}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-gray-700 focus:ring-blue-500 ${errors.harvestDate ? 'border-red-500' : ''}`}
                   />
                   {errors.harvestDate && <p className="text-red-500 text-xs mt-1">{errors.harvestDate}</p>}
                 </div>
@@ -260,7 +317,7 @@ export default function AddLotPage() {
                     name="processingMethod"
                     value={formData.processingMethod}
                     onChange={handleChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.processingMethod ? 'border-red-500' : ''}`}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-gray-700 focus:ring-blue-500 ${errors.processingMethod ? 'border-red-500' : ''}`}
                   >
                     {processingMethods.map(method => (
                       <option key={method} value={method}>{method}</option>
@@ -273,21 +330,18 @@ export default function AddLotPage() {
             
             {/* Farm Location Section */}
             <div className="mb-8">
-              <h2 className="text-lg font-semibold mb-4 pb-2 border-b">🌍 Farm Location</h2>
+              <h2 className="text-lg font-semibold mb-4 pb-2 border-b text-black">🌍 Farm Location</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Region <span className="text-red-500">*</span></label>
-                  <select
+                  <input
+                    type="text"
                     name="region"
                     value={formData.region}
                     onChange={handleChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.region ? 'border-red-500' : ''}`}
-                  >
-                    <option value="">Select region</option>
-                    {ethiopianRegions.map(region => (
-                      <option key={region} value={region}>{region}</option>
-                    ))}
-                  </select>
+                    placeholder="e.g., Sidama, Yirgacheffe"
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 text-gray-700 focus:ring-blue-500 ${errors.region ? 'border-red-500' : ''}`}
+                  />
                   {errors.region && <p className="text-red-500 text-xs mt-1">{errors.region}</p>}
                 </div>
                 
@@ -300,7 +354,7 @@ export default function AddLotPage() {
                       value={formData.gpsCoordinates}
                       onChange={handleChange}
                       placeholder="e.g., 6.123456, 38.123456"
-                      className={`w-full px-3 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.gpsCoordinates ? 'border-red-500' : ''}`}
+                      className={`w-full px-3 py-2 border rounded-l-lg focus:outline-none text-gray-700 focus:ring-2 focus:ring-blue-500 ${errors.gpsCoordinates ? 'border-red-500' : ''}`}
                       readOnly
                     />
                     <button
@@ -323,7 +377,7 @@ export default function AddLotPage() {
                     value={formData.altitude}
                     onChange={handleChange}
                     placeholder="e.g., 1950"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border rounded-lg text-gray-700  focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <p className="text-xs text-gray-500 mt-1">Optional</p>
                 </div>
@@ -332,7 +386,7 @@ export default function AddLotPage() {
             
             {/* Media Section */}
             <div className="mb-8">
-              <h2 className="text-lg font-semibold mb-4 pb-2 border-b">📸 Media</h2>
+              <h2 className="text-lg font-semibold mb-4 pb-2 border-b text-black">📸 Media</h2>
               
               {/* Image Upload */}
               <div className="mb-6">
@@ -466,14 +520,14 @@ export default function AddLotPage() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="h-8 w-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Coffee Lot Successfully Submitted!</h2>
+            <h2 className="text-2xl font-bold mb-2 text-black">Coffee Lot Successfully Submitted!</h2>
             <p className="text-gray-600 mb-6">Your coffee lot has been registered and is now pending verification.</p>
             
             <div className="bg-gray-50 p-6 rounded-lg mb-8 max-w-md mx-auto">
-              <h3 className="text-lg font-semibold mb-4">Lot Details</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">Lot Details</h3>
               <div className="flex justify-between mb-2">
                 <span className="text-gray-600">Lot ID:</span>
-                <span className="font-medium">{lotId}</span>
+                <span className="font-medium text-blue-500">{lotId}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span className="text-gray-600">Status:</span>
@@ -481,20 +535,66 @@ export default function AddLotPage() {
               </div>
               <div className="flex justify-between mb-2">
                 <span className="text-gray-600">Submission Date:</span>
-                <span className="font-medium">{new Date().toISOString().split('T')[0]}</span>
+                <span className="font-medium text-gray-700">{new Date().toISOString().split('T')[0]}</span>
               </div>
             </div>
             
             <div className="bg-gray-50 p-6 rounded-lg mb-8 max-w-md mx-auto">
-              <div className="mx-auto w-48 h-48 relative">
-                <Image 
-                  src="/coffee-bean-concept-illustration.png" 
-                  alt="QR Code"
-                  fill
-                  className="object-contain"
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">Lot QR Code</h3>
+              <div className="mx-auto w-48 h-48 flex justify-center items-center bg-white p-2 rounded-lg shadow-sm">
+                <QRCodeSVG 
+                  value={JSON.stringify({
+                    id: lotId,
+                    lotName: formData.lotName,
+                    variety: formData.variety === 'Other' ? formData.customVariety : formData.variety,
+                    weight: parseFloat(formData.weight),
+                    region: formData.region,
+                    altitude: formData.altitude || 'Not specified',
+                    harvestDate: formData.harvestDate,
+                    processingMethod: formData.processingMethod,
+                    submittedDate: new Date().toISOString().split('T')[0],
+                    status: 'Pending'
+                  })}
+                  size={180}
+                  level="H"
+                  includeMargin={true}
+                  imageSettings={{
+                    src: '/Bunachain.png',
+                    x: undefined,
+                    y: undefined,
+                    height: 30,
+                    width: 30,
+                    excavate: true,
+                  }}
                 />
               </div>
-              <p className="text-sm text-gray-600 mt-2">Scan this QR code to view the lot's traceability information</p>
+              <p className="text-sm text-gray-600 mt-4">Scan this QR code to view the lot's traceability information</p>
+              <button 
+                onClick={() => {
+                  const canvas = document.createElement("canvas");
+                  const svg = document.querySelector(".mx-auto.w-48.h-48 svg");
+                  if (svg) {
+                    const svgData = new XMLSerializer().serializeToString(svg);
+                    const img = new Image();
+                    img.onload = () => {
+                      canvas.width = img.width;
+                      canvas.height = img.height;
+                      const ctx = canvas.getContext("2d");
+                      ctx.drawImage(img, 0, 0);
+                      const pngFile = canvas.toDataURL("image/png");
+                      const downloadLink = document.createElement("a");
+                      downloadLink.download = `${lotId}-QRCode.png`;
+                      downloadLink.href = pngFile;
+                      downloadLink.click();
+                    };
+                    img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
+                  }
+                }}
+                className="mt-4 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full"
+              >
+                <Download className="h-4 w-4" />
+                Download QR Code
+              </button>
             </div>
             
             <button

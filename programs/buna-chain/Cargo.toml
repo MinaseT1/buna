@@ -1,0 +1,20 @@
+[package]
+name = "buna-chain"
+version = "0.1.0"
+description = "BunaChain - A Solana smart contract for coffee supply chain traceability"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "buna_chain"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.28.0"
+solana-program = "1.16.0"

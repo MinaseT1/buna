@@ -1,8 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from "../Sidebar";
 import { Search, Filter, Calendar, PlusCircle, Eye, Edit, Trash2, X, ChevronDown, ChevronUp, Download } from "lucide-react";
 import Image from 'next/image';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function LotsPage() {
   // State for filters
@@ -12,79 +13,22 @@ export default function LotsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [showLotDetails, setShowLotDetails] = useState(false);
   const [selectedLot, setSelectedLot] = useState(null);
-
-  // Mock data for coffee lots
-  const coffeeLots = [
-    {
-      id: 'LOT-ETH-00012',
-      variety: 'Heirloom',
-      weight: 50,
-      status: 'Pending',
-      processor: '',
-      submittedDate: '2024-06-05',
-      region: 'Sidama',
-      altitude: '1800-2000m',
-      harvestDate: '2024-05-20',
-      processingMethod: 'Natural',
-      images: ['/coffee-bean-concept-illustration.png'],
-      timeline: [
-        { date: '2024-06-05', event: 'Lot registered by farmer', status: 'Pending' }
-      ]
-    },
-    {
-      id: 'LOT-ETH-00011',
-      variety: 'Bourbon',
-      weight: 75,
-      status: 'Processing',
-      processor: 'Yirgacheffe Processing Co.',
-      submittedDate: '2024-06-01',
-      region: 'Yirgacheffe',
-      altitude: '1900-2100m',
-      harvestDate: '2024-05-15',
-      processingMethod: 'Washed',
-      images: ['/coffee-bean-concept-illustration.png'],
-      timeline: [
-        { date: '2024-06-01', event: 'Lot registered by farmer', status: 'Pending' },
-        { date: '2024-06-03', event: 'Accepted by processor', status: 'Processing' }
-      ]
-    },
-    {
-      id: 'LOT-ETH-00010',
-      variety: 'Typica',
-      weight: 60,
-      status: 'Exported',
-      processor: 'Addis Coffee Processors',
-      submittedDate: '2024-05-20',
-      region: 'Guji',
-      altitude: '1700-1900m',
-      harvestDate: '2024-05-01',
-      processingMethod: 'Honey',
-      images: ['/coffee-bean-concept-illustration.png'],
-      timeline: [
-        { date: '2024-05-20', event: 'Lot registered by farmer', status: 'Pending' },
-        { date: '2024-05-22', event: 'Accepted by processor', status: 'Processing' },
-        { date: '2024-06-01', event: 'Processing completed', status: 'Processed' },
-        { date: '2024-06-04', event: 'Exported to Germany', status: 'Exported' }
-      ]
-    },
-    {
-      id: 'LOT-ETH-00009',
-      variety: 'Gesha',
-      weight: 40,
-      status: 'Rejected',
-      processor: 'Harar Coffee Co.',
-      submittedDate: '2024-05-15',
-      region: 'Harar',
-      altitude: '1600-1800m',
-      harvestDate: '2024-04-25',
-      processingMethod: 'Natural',
-      images: ['/coffee-bean-concept-illustration.png'],
-      timeline: [
-        { date: '2024-05-15', event: 'Lot registered by farmer', status: 'Pending' },
-        { date: '2024-05-18', event: 'Rejected due to moisture content', status: 'Rejected' }
-      ]
-    },
-  ];
+  const [coffeeLots, setCoffeeLots] = useState([]);
+  
+  // Load coffee lots from localStorage on component mount
+  useEffect(() => {
+    const storedLots = JSON.parse(localStorage.getItem('coffeeLots') || '[]');
+    // Combine stored lots with mock data if needed
+    const mockLots = [
+      
+     
+    ];
+    
+    // Combine stored lots with mock data, avoiding duplicates by ID
+    const existingIds = storedLots.map(lot => lot.id);
+    const filteredMockLots = mockLots.filter(lot => !existingIds.includes(lot.id));
+    setCoffeeLots([...storedLots, ...filteredMockLots]);
+  }, []);
 
   // Filter lots based on search, status, and date
   const filteredLots = coffeeLots.filter(lot => {
@@ -127,7 +71,7 @@ export default function LotsPage() {
       <main className="flex-1 p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2 text-black">My Coffee Lots</h1>
-          <p className="text-gray-600">Manage and track your coffee batches from creation to export</p>
+          <p className="text-black">Manage and track your coffee batches from creation to export</p>
         </div>
         
         {/* Filters and Controls */}
@@ -142,7 +86,7 @@ export default function LotsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-2.5 h-5 w-5 text-black" />
             </div>
             
             {/* Filter Toggle */}
@@ -172,7 +116,7 @@ export default function LotsPage() {
             <div className="flex flex-col md:flex-row gap-4 items-end">
               {/* Status Filter */}
               <div className="w-full md:w-auto">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <label className="block text-sm font-medium text-black mb-1">Status</label>
                 <select 
                   className="w-full md:w-40 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={statusFilter}
@@ -188,7 +132,7 @@ export default function LotsPage() {
               
               {/* Date Range */}
               <div className="w-full md:w-auto flex flex-col">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Submission Date</label>
+                <label className="block text-sm font-medium text-black mb-1">Submission Date</label>
                 <div className="flex gap-2 items-center">
                   <div className="relative">
                     <input
@@ -197,9 +141,9 @@ export default function LotsPage() {
                       value={dateRange.start}
                       onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
                     />
-                    <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                    <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-black" />
                   </div>
-                  <span className="text-gray-500">to</span>
+                  <span className="text-black">to</span>
                   <div className="relative">
                     <input
                       type="date"
@@ -207,7 +151,7 @@ export default function LotsPage() {
                       value={dateRange.end}
                       onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
                     />
-                    <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                    <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-black" />
                   </div>
                 </div>
               </div>
@@ -233,7 +177,7 @@ export default function LotsPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 text-left text-gray-500 text-sm">
+                <tr className="bg-gray-50 text-left text-black text-sm">
                   <th className="px-6 py-3 font-medium">Lot ID</th>
                   <th className="px-6 py-3 font-medium">Coffee Variety</th>
                   <th className="px-6 py-3 font-medium">Weight (kg)</th>
@@ -248,15 +192,15 @@ export default function LotsPage() {
                   filteredLots.map((lot) => (
                     <tr key={lot.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 font-medium text-blue-600">{lot.id}</td>
-                      <td className="px-6 py-4">{lot.variety}</td>
-                      <td className="px-6 py-4">{lot.weight}</td>
+                      <td className="px-6 py-4 text-black">{lot.variety}</td>
+                      <td className="px-6 py-4 text-black">{lot.weight}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(lot.status)}`}>
                           {lot.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4">{lot.processor || '—'}</td>
-                      <td className="px-6 py-4">{lot.submittedDate}</td>
+                      <td className="px-6 py-4 text-black">{lot.processor || '—'}</td>
+                      <td className="px-6 py-4 text-black">{lot.submittedDate}</td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <button 
@@ -288,7 +232,7 @@ export default function LotsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
+                    <td colSpan={7} className="px-6 py-10 text-center text-black">
                       No coffee lots found matching your filters.
                     </td>
                   </tr>
@@ -300,10 +244,10 @@ export default function LotsPage() {
         
         {/* Lot Details Modal */}
         {showLotDetails && selectedLot && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 backdrop-blur bg-white/60 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center border-b p-6">
-                <h2 className="text-xl font-bold">Lot Details: {selectedLot.id}</h2>
+                <h2 className="text-xl font-bold text-black">Lot Details: {selectedLot.id}</h2>
                 <button 
                   onClick={() => setShowLotDetails(false)}
                   className="text-gray-500 hover:text-gray-700"
@@ -316,77 +260,184 @@ export default function LotsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Left Column - Lot Metadata */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">Batch Information</h3>
+                    <h3 className="text-lg font-semibold mb-4 text-black">Batch Information</h3>
                     <div className="space-y-3">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Coffee Variety:</span>
-                        <span className="font-medium">{selectedLot.variety}</span>
+                        <span className="text-black">Coffee Variety:</span>
+                        <span className="font-medium text-black">{selectedLot.variety}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Weight:</span>
-                        <span className="font-medium">{selectedLot.weight} kg</span>
+                        <span className="text-black">Weight:</span>
+                        <span className="font-medium text-black">{selectedLot.weight} kg</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Status:</span>
+                        <span className="text-black">Status:</span>
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(selectedLot.status)}`}>
                           {selectedLot.status}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Region:</span>
-                        <span className="font-medium">{selectedLot.region}</span>
+                        <span className="text-black">Region:</span>
+                        <span className="font-medium text-black">{selectedLot.region}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Altitude:</span>
-                        <span className="font-medium">{selectedLot.altitude}</span>
+                        <span className="text-black">Altitude:</span>
+                        <span className="font-medium text-black">{selectedLot.altitude}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Harvest Date:</span>
-                        <span className="font-medium">{selectedLot.harvestDate}</span>
+                        <span className="text-black">Harvest Date:</span>
+                        <span className="font-medium text-black">{selectedLot.harvestDate}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Processing Method:</span>
-                        <span className="font-medium">{selectedLot.processingMethod}</span>
+                        <span className="text-black">Processing Method:</span>
+                        <span className="font-medium text-black">{selectedLot.processingMethod}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Submitted Date:</span>
-                        <span className="font-medium">{selectedLot.submittedDate}</span>
+                        <span className="text-black">Submitted Date:</span>
+                        <span className="font-medium text-black">{selectedLot.submittedDate}</span>
                       </div>
                       {selectedLot.processor && (
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Processor:</span>
-                          <span className="font-medium">{selectedLot.processor}</span>
+                          <span className="text-black">Processor:</span>
+                          <span className="font-medium text-black">{selectedLot.processor}</span>
                         </div>
                       )}
                     </div>
                     
                     {/* Attached Images */}
-                    <h3 className="text-lg font-semibold mt-6 mb-4">Attached Images</h3>
+                    <h3 className="text-lg font-semibold mt-6 mb-4 text-black">Attached Images</h3>
                     <div className="grid grid-cols-2 gap-4">
                       {selectedLot.images.map((image, index) => (
-                        <div key={index} className="border rounded-lg overflow-hidden">
+                        <div key={index} className="border rounded-lg overflow-hidden h-40 relative">
                           <Image 
                             src={image} 
                             alt={`Coffee lot ${selectedLot.id} image ${index + 1}`} 
-                            width={200} 
-                            height={150} 
-                            className="w-full h-auto object-cover"
+                            fill
+                            className="object-cover"
                           />
                         </div>
                       ))}
                     </div>
                   </div>
                   
-                  {/* Right Column - Traceability Timeline */}
+                  {/* Right Column - Traceability Timeline and QR Code */}
                   <div>
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold">Traceability Timeline</h3>
-                      {selectedLot.status === 'Exported' && (
-                        <button className="flex items-center gap-1 text-blue-600 hover:text-blue-800">
-                          <Download className="h-4 w-4" />
-                          <span>Download QR</span>
-                        </button>
-                      )}
+                      <h3 className="text-lg font-semibold text-black">Traceability Timeline</h3>
+                      <button 
+                        className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                        onClick={() => {
+                          try {
+                            // Create a new QR code directly as a data URL
+                            const qrCodeData = JSON.stringify({
+                              id: selectedLot.id,
+                              variety: selectedLot.variety,
+                              region: selectedLot.region,
+                              processingMethod: selectedLot.processingMethod,
+                              status: selectedLot.status,
+                              timeline: selectedLot.timeline
+                            });
+                            
+                            // Create a temporary canvas element
+                            const canvas = document.createElement('canvas');
+                            const size = 200; // Slightly larger than the displayed QR code
+                            canvas.width = size;
+                            canvas.height = size;
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Fill with white background
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillRect(0, 0, size, size);
+                            
+                            // Get the SVG element
+                            const svgElement = document.querySelector('.qr-code-container svg');
+                            if (!svgElement) {
+                              throw new Error('QR code SVG not found');
+                            }
+                            
+                            // Create a new image element
+                            const img = new Image();
+                            
+                            // Convert SVG to a data URL
+                            const svgData = new XMLSerializer().serializeToString(svgElement);
+                            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+                            const reader = new FileReader();
+                            
+                            reader.onload = function(e) {
+                              img.onload = function() {
+                                // Draw the image onto the canvas with padding
+                                const padding = 10;
+                                ctx.drawImage(img, padding, padding, size - (padding * 2), size - (padding * 2));
+                                
+                                // Convert canvas to data URL
+                                try {
+                                  const dataUrl = canvas.toDataURL('image/png');
+                                  
+                                  // Create download link
+                                  const a = document.createElement('a');
+                                  a.href = dataUrl;
+                                  a.download = `${selectedLot.id}-QR-Code.png`;
+                                  
+                                  // Trigger download
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  
+                                  // Clean up
+                                  setTimeout(() => {
+                                    document.body.removeChild(a);
+                                  }, 100);
+                                } catch (err) {
+                                  console.error('Error creating data URL:', err);
+                                  alert('Failed to download QR code. Please try again.');
+                                }
+                              };
+                              
+                              img.onerror = function() {
+                                console.error('Error loading SVG image');
+                                alert('Failed to download QR code. Please try again.');
+                              };
+                              
+                              img.src = e.target.result;
+                            };
+                            
+                            reader.onerror = function() {
+                              console.error('Error reading SVG blob');
+                              alert('Failed to download QR code. Please try again.');
+                            };
+                            
+                            reader.readAsDataURL(svgBlob);
+                          } catch (error) {
+                            console.error('Error downloading QR code:', error);
+                            alert('Failed to download QR code. Please try again.');
+                          }
+                        }}
+                      >
+                        <Download className="h-4 w-4" />
+                        <span>Download QR</span>
+                      </button>
+                    </div>
+                    
+                    {/* QR Code */}
+                    <div className="mb-6 p-4 bg-gray-50 rounded-lg flex flex-col items-center">
+                      <h4 className="text-md font-medium mb-3 text-black">Lot Traceability QR Code</h4>
+                      <div className="bg-white p-3 rounded-lg shadow-sm qr-code-container">
+                        <QRCodeSVG 
+                          value={JSON.stringify({
+                            id: selectedLot.id,
+                            variety: selectedLot.variety,
+                            region: selectedLot.region,
+                            processingMethod: selectedLot.processingMethod,
+                            status: selectedLot.status,
+                            timeline: selectedLot.timeline
+                          })} 
+                          size={180}
+                          bgColor={"#ffffff"}
+                          fgColor={"#000000"}
+                          level={"H"}
+                          includeMargin={true}
+                        />
+                      </div>
+                      <p className="text-sm text-black mt-3 text-center">Scan this QR code to verify the authenticity and trace the journey of this coffee lot.</p>
                     </div>
                     
                     <div className="relative pl-8 border-l-2 border-gray-200 space-y-6">
@@ -396,8 +447,8 @@ export default function LotsPage() {
                             {index + 1}
                           </div>
                           <div className="bg-gray-50 rounded-lg p-4">
-                            <div className="text-sm text-gray-500">{event.date}</div>
-                            <div className="font-medium">{event.event}</div>
+                            <div className="text-sm text-black">{event.date}</div>
+                            <div className="font-medium text-black">{event.event}</div>
                             <div className={`mt-1 inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(event.status)}`}>
                               {event.status}
                             </div>

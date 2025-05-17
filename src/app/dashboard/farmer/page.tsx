@@ -1,6 +1,6 @@
 'use client';
 import Sidebar from "./Sidebar";
-import { Package, Truck, Wallet, DollarSign } from "lucide-react";
+import { Package, Truck, Wallet, DollarSign, Eye, PlusCircle, ChevronDown } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 
@@ -17,91 +17,98 @@ export default function FarmerDashboard() {
           <div className="relative bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl shadow-lg p-6 flex flex-col items-center border-t-4 border-blue-500 transition-transform hover:scale-105 hover:shadow-2xl duration-200">
             <span className="absolute top-4 right-4 text-blue-200 text-xl animate-bounce"><Package className="w-7 h-7" /></span>
             <span className="text-4xl mb-2"><Package className="w-10 h-10 text-white" /></span>
-            <span className="text-3xl font-bold text-white drop-shadow">12</span>
+            <span className="text-3xl font-bold text-white drop-shadow">0</span>
             <span className="text-blue-100 mt-1 text-center text-base font-medium">Total Coffee Lots Submitted</span>
           </div>
           <div className="relative bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-2xl shadow-lg p-6 flex flex-col items-center border-t-4 border-yellow-500 transition-transform hover:scale-105 hover:shadow-2xl duration-200">
             <span className="absolute top-4 right-4 text-yellow-200 text-xl"><Truck className="w-7 h-7" /></span>
             <span className="text-4xl mb-2"><Truck className="w-10 h-10 text-white" /></span>
-            <span className="text-3xl font-bold text-white drop-shadow">3</span>
+            <span className="text-3xl font-bold text-white drop-shadow">0</span>
             <span className="text-yellow-100 mt-1 text-center text-base font-medium">Lots in Processing/Exported</span>
           </div>
           <div className="relative bg-gradient-to-br from-green-400 to-green-600 rounded-2xl shadow-lg p-6 flex flex-col items-center border-t-4 border-green-500 transition-transform hover:scale-105 hover:shadow-2xl duration-200">
             <span className="absolute top-4 right-4 text-green-200 text-xl animate-pulse"><DollarSign className="w-7 h-7" /></span>
             <span className="text-4xl mb-2"><DollarSign className="w-10 h-10 text-white" /></span>
-            <span className="text-3xl font-bold text-white drop-shadow">$2,500 / ◎8.2</span>
+            <span className="text-3xl font-bold text-white drop-shadow">$0 / ◎0</span>
             <span className="text-green-100 mt-1 text-center text-base font-medium">Total Earnings (USD + Solana)</span>
           </div>
           <div className="relative bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl shadow-lg p-6 flex flex-col items-center border-t-4 border-purple-500 transition-transform hover:scale-105 hover:shadow-2xl duration-200">
             <span className="absolute top-4 right-4 text-purple-200 text-xl animate-bounce"><Wallet className="w-7 h-7" /></span>
             <span className="text-4xl mb-2"><Wallet className="w-10 h-10 text-white" /></span>
-            <span className="text-3xl font-bold text-white drop-shadow">◎1.5</span>
+            <span className="text-3xl font-bold text-white drop-shadow">◎0</span>
             <span className="text-purple-100 mt-1 text-center text-base font-medium">Wallet Balance</span>
           </div>
         </div>
-        <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-8 mb-10">
-          {/* Recent Lots Table */}
-          <div className="flex-1 bg-white rounded-2xl shadow-lg p-6 border flex flex-col justify-between min-w-[340px]">
-            <div>
-              <h2 className="text-xl font-semibold mb-4 text-black">Recent Lots</h2>
-              <table className="w-full text-left">
+        {/* Recent Lots Table - Imported from lots page */}
+        <div className="w-full max-w-6xl mb-8">
+          <div className="bg-white rounded-2xl shadow-lg p-6 border">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-black">Recent Lots</h2>
+              <a href="/dashboard/farmer/lots" className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                <span>View All</span>
+                <ChevronDown className="h-4 w-4" />
+              </a>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
                 <thead>
-                  <tr className="text-gray-400 text-sm">
-                    <th className="pb-2 font-medium">Reciever</th>
-                    <th className="pb-2 font-medium">Type</th>
-                    <th className="pb-2 font-medium">Lot ID</th>
-                    <th className="pb-2 font-medium">Date Submitted</th>
-                    <th className="pb-2 font-medium">Status</th>
-                    <th className="pb-2 font-medium text-right">Weight(Kg)</th>
+                  <tr className="bg-gray-50 text-left text-black text-sm border-b">
+                    <th className="px-4 py-3 font-medium">Lot ID</th>
+                    <th className="px-4 py-3 font-medium">Coffee Variety</th>
+                    <th className="px-4 py-3 font-medium">Weight (kg)</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium">Submitted Date</th>
+                    <th className="px-4 py-3 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="text-black text-base">
-                  <tr className="border-b last:border-b-0">
-                    <td className="py-2 flex items-center gap-2"><span className="inline-block"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#888"/><path d="M4 20c0-2.21 3.58-4 8-4s8 1.79 8 4" fill="#ddd"/></svg></span>Abebe Bekele</td>
-                    <td className="py-2">Robusta</td>
-                    <td className="py-2">LOT001</td>
-                    <td className="py-2">2024-06-01</td>
-                    <td className="py-2"><span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">Pending</span></td>
-                    <td className="py-2 text-right font-bold">8200</td>
-                  </tr>
-                  <tr className="border-b last:border-b-0">
-                    <td className="py-2 flex items-center gap-2"><span className="inline-block"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#888"/><path d="M4 20c0-2.21 3.58-4 8-4s8 1.79 8 4" fill="#ddd"/></svg></span>Kebede Asfaw</td>
-                    <td className="py-2">Arabica</td>
-                    <td className="py-2">LOT002</td>
-                    <td className="py-2">2024-05-28</td>
-                    <td className="py-2"><span className="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">Processing</span></td>
-                    <td className="py-2 text-right font-bold">9000</td>
-                  </tr>
-                  <tr className="border-b last:border-b-0">
-                    <td className="py-2 flex items-center gap-2"><span className="inline-block"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#888"/><path d="M4 20c0-2.21 3.58-4 8-4s8 1.79 8 4" fill="#ddd"/></svg></span>Dagim  Assefa</td>
-                    <td className="py-2">Excelsa</td>
-                    <td className="py-2">LOT003</td>
-                    <td className="py-2">2024-05-25</td>
-                    <td className="py-2"><span className="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">Exported</span></td>
-                    <td className="py-2 text-right font-bold">4500.50</td>
-                  </tr>
-                  <tr className="border-b last:border-b-0">
-                    <td className="py-2 flex items-center gap-2"><span className="inline-block"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#888"/><path d="M4 20c0-2.21 3.58-4 8-4s8 1.79 8 4" fill="#ddd"/></svg></span>John Mathew Kayne</td>
-                    <td className="py-2">Liberica</td>
-                    <td className="py-2">LOT004</td>
-                    <td className="py-2">2024-05-20</td>
-                    <td className="py-2"><span className="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">Exported</span></td>
-                    <td className="py-2 text-right font-bold">6700</td>
-                  </tr>
+                <tbody className="divide-y divide-gray-200">
                   <tr>
-                    <td className="py-2 flex items-center gap-2"><span className="inline-block"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#888"/><path d="M4 20c0-2.21 3.58-4 8-4s8 1.79 8 4" fill="#ddd"/></svg></span>Ann Marlin</td>
-                    <td className="py-2">Excelsa</td>
-                    <td className="py-2">LOT005</td>
-                    <td className="py-2">2024-05-18</td>
-                    <td className="py-2"><span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">Pending</span></td>
-                    <td className="py-2 text-right font-bold">10000</td>
+                    <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+                      No coffee lots submitted yet. Click "Add New Coffee Lot" to get started.
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-          
           </div>
-          {/* Shipment Overview Card */}
+        </div>
+        
+        {/* Quick Action Buttons */}
+        <div className="w-full max-w-6xl mb-8">
+          <h2 className="text-xl font-semibold mb-4 text-black">Quick Actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="/dashboard/farmer/add-lot" className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-200 hover:border-blue-200">
+              <div className="bg-blue-100 p-3 rounded-full mb-3">
+                <PlusCircle className="h-6 w-6 text-blue-600" />
+              </div>
+              <span className="text-black font-medium">Add New Coffee Lot</span>
+            </a>
+            
+            <a href="/dashboard/farmer/offers" className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-200 hover:border-blue-200">
+              <div className="bg-green-100 p-3 rounded-full mb-3">
+                <Truck className="h-6 w-6 text-green-600" />
+              </div>
+              <span className="text-black font-medium">View Open Offers</span>
+            </a>
+            
+            <a href="/dashboard/farmer/performance" className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-200 hover:border-blue-200">
+              <div className="bg-purple-100 p-3 rounded-full mb-3">
+                <DollarSign className="h-6 w-6 text-purple-600" />
+              </div>
+              <span className="text-black font-medium">My Performance</span>
+            </a>
+            
+            <a href="/dashboard/farmer/transactions" className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-200 hover:border-blue-200">
+              <div className="bg-yellow-100 p-3 rounded-full mb-3">
+                <Wallet className="h-6 w-6 text-yellow-600" />
+              </div>
+              <span className="text-black font-medium">View Transaction History</span>
+            </a>
+          </div>
+        </div>
+        
+        {/* Shipment Overview Card */}
+        <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-8 mb-10">
           <div className="flex-1 flex flex-col bg-white rounded-2xl shadow-lg p-6 border min-w-[340px] max-w-md mx-auto">
             <h2 className="text-lg font-semibold mb-2 text-black">Shipment Overview</h2>
             <div className="flex items-end gap-4 mb-2">

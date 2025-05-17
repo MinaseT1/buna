@@ -1,19 +1,44 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Sidebar from "../Sidebar";
 import Image from 'next/image';
 import { User, Wallet, Globe, Lock, HelpCircle, Check, Copy, RefreshCw, LogOut, ChevronDown, Eye, EyeOff, Camera, FileText } from "lucide-react";
+import { useWallet } from "../../../../lib/wallet-context";
 
 export default function SettingsPage() {
   // Profile state
   const [profileData, setProfileData] = useState({
-    fullName: 'Abebe Bekele',
-    phoneNumber: '+251912345678',
-    email: 'abebe.bekele@example.com',
-    region: 'Sidama',
+    fullName: '',
+    phoneNumber: '',
+    email: '',
+    region: '',
     language: 'English',
     profilePicture: '/colombian-farmer-inspecting-coffee-beans-with-great-care_1106493-151303.jpg'
   });
+  
+  // Fetch user data on component mount
+  useState(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/user/profile');
+        if (response.ok) {
+          const userData = await response.json();
+          setProfileData({
+            fullName: userData.full_name || '',
+            phoneNumber: userData.phone || '',
+            email: userData.email || '',
+            region: userData.region || '',
+            language: 'English',
+            profilePicture: '/colombian-farmer-inspecting-coffee-beans-with-great-care_1106493-151303.jpg'
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      }
+    };
+    
+    fetchUserData();
+  }, []);
 
   // Preferences state
   const [preferences, setPreferences] = useState({
@@ -37,20 +62,37 @@ export default function SettingsPage() {
   const [formErrors, setFormErrors] = useState({});
   const fileInputRef = useRef(null);
 
-  // Mock wallet data
+  // Use the wallet context to get the actual connected wallet
+  const { address, isConnected, walletType, isVerified, connect, disconnect } = useWallet();
+  
+  // Wallet data derived from context
   const walletData = {
-    address: '8xft7UNd4oJPeTUreEfgL9QKWBKZ7Xh3FcFvTgQJKvyY',
-    type: 'Phantom',
-    isConnected: true,
-    isVerified: true
+    address: address || '', // No fallback to mock address
+    type: walletType || 'Phantom',
+    isConnected: isConnected,
+    isVerified: isVerified
   };
 
-  // Mock session data
-  const sessionData = [
-    { device: 'Chrome on Windows', location: 'Addis Ababa, Ethiopia', time: '2024-06-10 14:23', current: true },
-    { device: 'Safari on iPhone', location: 'Sidama, Ethiopia', time: '2024-06-08 09:15', current: false },
-    { device: 'Firefox on Mac', location: 'Addis Ababa, Ethiopia', time: '2024-06-05 18:42', current: false }
-  ];
+  // Session data state
+  const [sessionData, setSessionData] = useState([]);
+  
+  // Fetch session data on component mount
+  useEffect(() => {
+    const fetchSessionData = async () => {
+      try {
+        const response = await fetch('/api/user/sessions');
+        if (response.ok) {
+          const data = await response.json();
+          setSessionData(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch session data:', error);
+        // Don't set any fallback mock data
+      }
+    };
+    
+    fetchSessionData();
+  }, []);
 
   // Ethiopian regions
   const ethiopianRegions = [
@@ -178,10 +220,9 @@ export default function SettingsPage() {
     alert('Logged out from all devices!');
   };
 
-  // Reconnect wallet
+  // Reconnect wallet using the wallet context
   const reconnectWallet = () => {
-    // In a real app, you would reconnect to the wallet
-    alert('Wallet reconnected successfully!');
+    connect();
   };
 
   return (
@@ -199,7 +240,7 @@ export default function SettingsPage() {
             <nav className="flex flex-col gap-2">
               <button 
                 onClick={() => setActiveSection('profile')}
-                className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${activeSection === 'profile' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
+                className={`flex items-center gap-3 p-3 rounded-lg transition-colors text-black ${activeSection === 'profile' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
               >
                 <User className="h-5 w-5" />
                 <span>Profile Information</span>
@@ -207,15 +248,15 @@ export default function SettingsPage() {
               
               <button 
                 onClick={() => setActiveSection('wallet')}
-                className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${activeSection === 'wallet' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
+                className={`flex items-center gap-3 p-3 rounded-lg transition-colors text-black ${activeSection === 'wallet' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
               >
-                <Wallet className="h-5 w-5" />
+                <Wallet className="h-5 w-5 text-black" />
                 <span>Wallet Connection</span>
               </button>
               
               <button 
                 onClick={() => setActiveSection('preferences')}
-                className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${activeSection === 'preferences' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
+                className={`flex items-center gap-3 p-3 rounded-lg transition-colors text-black ${activeSection === 'preferences' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
               >
                 <Globe className="h-5 w-5" />
                 <span>Preferences</span>
@@ -223,7 +264,7 @@ export default function SettingsPage() {
               
               <button 
                 onClick={() => setActiveSection('security')}
-                className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${activeSection === 'security' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
+                className={`flex items-center gap-3 p-3 rounded-lg transition-colors text-black ${activeSection === 'security' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
               >
                 <Lock className="h-5 w-5" />
                 <span>Security</span>
@@ -231,7 +272,7 @@ export default function SettingsPage() {
               
               <button 
                 onClick={() => setActiveSection('support')}
-                className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${activeSection === 'support' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
+                className={`flex items-center gap-3 p-3 rounded-lg transition-colors text-black ${activeSection === 'support' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-50'}`}
               >
                 <HelpCircle className="h-5 w-5" />
                 <span>Support / Help</span>
@@ -385,14 +426,14 @@ export default function SettingsPage() {
             {/* Wallet Connection Section */}
             {activeSection === 'wallet' && (
               <div>
-                <h2 className="text-xl font-semibold mb-6">Wallet Connection</h2>
+                <h2 className="text-xl font-semibold mb-6 text-gray-700">Wallet Connection</h2>
                 
                 <div className="bg-gray-50 p-6 rounded-lg border mb-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="font-medium mb-1">Connected Wallet</h3>
+                      <h3 className="font-medium mb-1 text-gray-600">Connected Wallet</h3>
                       <div className="flex items-center gap-2">
-                        <div className="font-mono text-sm bg-white p-2 rounded border truncate max-w-xs">
+                        <div className="font-mono text-sm bg-white p-2 rounded border truncate max-w-xs text-gray-500">
                           {walletData.address}
                         </div>
                         <button 

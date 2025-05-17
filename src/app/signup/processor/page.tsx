@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
@@ -34,11 +35,12 @@ export default function ProcessorSignup() {
           <div className="min-h-screen flex items-center justify-center bg-white">
             <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg max-w-4xl w-full">
               <div className="w-full md:w-1/2 relative min-h-[400px] md:min-h-[600px]">
-                <Image src="/7439604_32941.jpg" alt="Processor" fill className="object-contain rounded-l-lg" />
+                <Image src="/coffee-bean-concept-illustration.png" alt="Coffee Processor" fill className="object-contain rounded-l-lg" />
               </div>
               <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
                 <div className="flex flex-col items-center mb-6">
                   <Image src="/Bunachain.png" alt="BunaChain Logo" width={200} height={48} />
+                  <h1 className="text-2xl font-bold mt-4 text-black">Processor Registration</h1>
                 </div>
                 <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                   <input name="businessName" value={form.businessName} onChange={handleChange} placeholder="Business Name" className="border rounded px-4 py-2 text-black" required />
@@ -52,6 +54,14 @@ export default function ProcessorSignup() {
                   </div>
                   <button type="submit" className="bg-blue-600 text-white px-8 py-2 rounded-full text-lg font-semibold hover:bg-blue-700 transition">Submit</button>
                 </form>
+                <div className="mt-6 text-center">
+                  <p className="text-gray-600">
+                    Already have an account?{" "}
+                    <Link href="/login" className="text-blue-600 hover:underline">
+                      Sign in
+                    </Link>
+                  </p>
+                </div>
               </div>
             </div>
           </div>

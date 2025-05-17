@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  FARMER
+  PROCESSOR
+  EXPORTER
+  IMPORTER
+}
+
+enum LotStatus {
+  PENDING
+  IN_PROCESSING
+  EXPORTED
+}
+
+model User {
+  id             String    @id @default(uuid()) @db.Uuid
+  full_name      String
+  email          String    @unique
+  phone          String
+  role           UserRole
+  region         String
+  country        String
+  wallet_address String    @unique
+  created_at     DateTime  @default(now())
+
+  // Relations
+  coffeeLots       CoffeeLot[]       @relation("FarmerLots")
+  processingEvents ProcessingEvent[] @relation("ProcessorEvents")
+  exportDocuments  ExportDocument[]  @relation("ExporterDocs")
+
+  @@map("users")
+}
+
+model CoffeeLot {
+  id               String    @id @default(uuid()) @db.Uuid
+  lot_id           String    @unique
+  farmer_id        String    @db.Uuid
+  variety          String
+  weight_kg        Float
+  harvest_date     DateTime
+  region           String
+  processing_method String
+  status           LotStatus @default(PENDING)
+  created_at       DateTime  @default(now())
+
+  // Relations
+  farmer           User             @relation("FarmerLots", fields: [farmer_id], references: [id])
+  processingEvents ProcessingEvent[]
+  exportDocument   ExportDocument?
+
+  @@map("coffee_lots")
+}
+
+model ProcessingEvent {
+  id               String    @id @default(uuid()) @db.Uuid
+  lot_id           String    @db.Uuid
+  processor_id     String    @db.Uuid
+  stage            String    // e.g. Washed, Sun-dried
+  start_date       DateTime
+  end_date         DateTime
+  moisture_content Float?
+  notes            String?
+  created_at       DateTime  @default(now())
+
+  // Relations
+  lot              CoffeeLot @relation(fields: [lot_id], references: [id])
+  processor        User      @relation("ProcessorEvents", fields: [processor_id], references: [id])
+
+  @@map("processing_events")
+}
+
+model ExportDocument {
+  id               String    @id @default(uuid()) @db.Uuid
+  lot_id           String    @db.Uuid @unique
+  exporter_id      String    @db.Uuid
+  document_url     String    // Link to uploaded file in Supabase Storage
+  export_date      DateTime
+  verified_by_qr   Boolean   @default(false)
+  created_at       DateTime  @default(now())
+
+  // Relations
+  lot              CoffeeLot @relation(fields: [lot_id], references: [id])
+  exporter         User      @relation("ExporterDocs", fields: [exporter_id], references: [id])
+
+  @@map("export_documents")
+}

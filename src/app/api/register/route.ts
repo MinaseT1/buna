@@ -1,0 +1,39 @@
+import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    
+    // Generate a unique email with timestamp
+    const timestamp = Date.now();
+    const email = `${body.companyName.toLowerCase().replace(/\s+/g, '')}-${timestamp}@bunachain.com`;
+    
+    const user = await prisma.user.create({
+      data: {
+        full_name: body.companyName,
+        email: email,
+        phone: "0000000000",
+        role: "EXPORTER",
+        region: body.region,
+        country: "Ethiopia",
+        wallet_address: body.walletAddress
+      }
+    });
+    
+    return NextResponse.json(user);
+  } catch (error: any) {
+    if (error.code === 'P2002') { // Prisma unique constraint error code
+      return NextResponse.json(
+        { error: 'A user with similar details already exists' },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json(
+      { error: error.message || 'Registration failed' },
+      { status: 500 }
+    );
+  }
+}
