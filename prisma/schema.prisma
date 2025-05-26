@@ -25,6 +25,7 @@ model User {
   full_name      String
   email          String    @unique
   phone          String
+  password       String
   role           UserRole
   region         String
   country        String

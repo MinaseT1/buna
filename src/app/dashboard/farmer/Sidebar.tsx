@@ -44,7 +44,7 @@ export default function Sidebar({ active }: SidebarProps) {
       </button>
       
       <aside
-        className={`bg-indigo-100 text-black flex flex-col py-8 px-4 transition-all duration-300 fixed md:relative
+        className={`bg-indigo-100 text-black flex flex-col py-8 px-4 transition-all duration-300 md:relative
           ${mobileMenuOpen ? "left-0" : "-left-full md:left-0"} 
           ${sidebarExpanded ? "md:w-64" : "md:w-20"}
           w-64 md:min-h-screen h-full top-0 z-40`}

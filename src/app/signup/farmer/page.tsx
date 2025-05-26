@@ -21,7 +21,9 @@ function FarmerSignupForm() {
     phone: "",
     region: "",
     country: "Ethiopia",
-    farmInfo: ""
+    farmInfo: "",
+    password: "",
+    confirmPassword: ""
   });
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [signupSuccess, setSignupSuccess] = useState(false);
@@ -55,6 +57,12 @@ function FarmerSignupForm() {
       return;
     }
     
+    // Check if passwords match
+    if (form.password !== form.confirmPassword) {
+      setSignupError('Passwords do not match.');
+      return;
+    }
+    
     try {
       // Get the actual wallet address from the connected wallet
       const wallet_address = publicKey.toString();
@@ -79,6 +87,7 @@ function FarmerSignupForm() {
           region: form.region,
           country: form.country,
           farmInfo: form.farmInfo,
+          password: form.password,
           wallet_address
         }),
       });
@@ -123,6 +132,8 @@ function FarmerSignupForm() {
             />
             <input name="region" value={form.region} onChange={handleChange} placeholder="Region/zone" className="border rounded px-4 py-2 text-gray-600" required />
             <input name="farmInfo" value={form.farmInfo} onChange={handleChange} placeholder="Farm Size, altitude" className="border rounded px-4 py-2 text-gray-600" required />
+            <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" className="border rounded px-4 py-2 text-gray-600" required />
+            <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="Confirm Password" className="border rounded px-4 py-2 text-gray-600" required />
             <div className="mt-6 flex items-center justify-center gap-2">
               <span className="font-semibold text-black">Solana</span>
               <WalletMultiButton 

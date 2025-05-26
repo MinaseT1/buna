@@ -6,8 +6,7 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
-    // Generate a unique email with timestamp
+
     const timestamp = Date.now();
     const email = `${body.companyName.toLowerCase().replace(/\s+/g, '')}-${timestamp}@bunachain.com`;
     
@@ -25,7 +24,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json(user);
   } catch (error: any) {
-    if (error.code === 'P2002') { // Prisma unique constraint error code
+    if (error.code === 'P2002') { 
       return NextResponse.json(
         { error: 'A user with similar details already exists' },
         { status: 400 }

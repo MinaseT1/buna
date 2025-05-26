@@ -32,18 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {!isDashboard && (
-          <header className="bg-white shadow-sm py-4">
-            <div className="container mx-auto px-4 flex justify-between items-center">
-              <Link href="/" className="flex items-center">
-                <Image src="/Bunachain.png" alt="BunaChain Logo" width={150} height={36} />
-              </Link>
-              <nav className="flex items-center space-x-6">
-                <Link href="/" className="text-gray-700 hover:text-blue-600">Home</Link>
-                <Link href="/login" className="text-gray-700 hover:text-blue-600">Sign In</Link>
-                <Link href="/signup" className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition">Sign Up</Link>
-              </nav>
-            </div>
-          </header>
+         <></>
         )}
         {children}
       </body>
