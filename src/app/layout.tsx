@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Link from 'next/link';
-import Image from 'next/image';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,13 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {!isDashboard && (
-          <header className="bg-white shadow-sm py-4">
-            <div className="container mx-auto px-4 flex justify-between items-center">
-              <Link href="/" className="flex items-center">
-                <Image src="/Bunachain.png" alt="BunaChain Logo" width={150} height={36} />
-              </Link>
-            </div>
-          </header>
+          <> </>
         )}
         {children}
       </body>
