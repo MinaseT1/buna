@@ -32,7 +32,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {!isDashboard && (
-         <></>
+          <header className="bg-white shadow-sm py-4">
+            <div className="container mx-auto px-4 flex justify-between items-center">
+              <Link href="/" className="flex items-center">
+                <Image src="/Bunachain.png" alt="BunaChain Logo" width={150} height={36} />
+              </Link>
+            </div>
+          </header>
         )}
         {children}
       </body>
